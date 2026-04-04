@@ -18,3 +18,7 @@ Wii homebrew application for wiimote data measurement
 3. Enter project directory and `make`
 4. Use `.dol` file
 
+## TODO
+- [ ] Gyro/accelerometer readouts
+- [ ] Pointer to show IR
+- [ ] Make it look not ugly 
