@@ -1,7 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <gccore.h>
-#include <wiiuse/wpad.h>
+#include "../header/includes.h"
 
 static void *xfb = NULL;
 static GXRModeObj *rmode = NULL;
@@ -49,37 +46,18 @@ int main(int argc, char **argv) {
 	// e.g. printf ("\x1b[%d;%dH", row, column );
 	printf("\x1b[2;0H");
 
-
-	printf("Hello World!\n");
-
 	while(SYS_MainLoop()) {
 
 		// Call WPAD_ScanPads each loop, this reads the latest controller states
 		WPAD_ScanPads();
 
-		// WPAD_ButtonsDown tells us which buttons were pressed in this loop
-		// this is a "one shot" state which will not fire again until the button has been released
-		u32 pressed = WPAD_ButtonsDown(0); // 0 indicates controller number
-		u32 held = WPAD_ButtonsHeld(0);
-		u32 up = WPAD_ButtonsUp(0);
+		char *str = malloc((num_of_buttons * sizeof(char)) + 1);
+		ButtonCheck(str, curr_wiimote);
 
-		if (pressed & WPAD_BUTTON_A) 
-		{
-			printf("A button pressed.\n");
-		}
+		printf("%s\n", str);
 
-		if (held & WPAD_BUTTON_A) 
-		{
-			printf("A button held.\n");
-		}
-
-		if (up & WPAD_BUTTON_A) 
-		{
-			printf("A button released.\n");
-		}
-
-		// We return to the launcher application via exit
-		if ( pressed & WPAD_BUTTON_HOME ) exit(0);
+		// // We return to the launcher application via exit
+		// if ( WPAD_ButtonsHeld(currWiimote) & WPAD_BUTTON_HOME ) exit(0);
 
 		// Wait for the next frame
 		VIDEO_WaitVSync();

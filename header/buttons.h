@@ -1,7 +1,8 @@
 #ifndef BUTTONS_H
 #define BUTTONS_H
 
-void Button_Check(int chan);
+void ButtonCheck(char* str, int chan);
+void HeldScan(char* buf, int i, int bit);
 
 
 #endif
