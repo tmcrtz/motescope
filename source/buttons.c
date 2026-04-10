@@ -22,7 +22,7 @@ empty space for buttons on extension controllers
 // inputs are a string to return to and which wiimote to read from; ideally separate printing and reading for multipurpose
 void ButtonCheck(char* str, int chan) {
     u32 held = WPAD_ButtonsHeld(chan); // chan indicates controller number
-    int size = (num_of_buttons * sizeof(char)) + 1; // size of string including null
+    int size = num_of_buttons + 1; // plus null
     int num_of_bits_to_read = 13; // see above reference, can be optimized by skipping unused bits
 
     char buf[size]; // AB12UDLR+-H string format

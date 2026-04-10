@@ -1,60 +1,37 @@
 #include "../header/includes.h"
 
-static void *xfb = NULL;
-static GXRModeObj *rmode = NULL;
-
 //---------------------------------------------------------------------------------
 int main(int argc, char **argv) {
 //---------------------------------------------------------------------------------
+	Init();
 
-	// Initialise the video system
-	VIDEO_Init();
-
-	// This function initialises the attached controllers
-	WPAD_Init();
-
-	// Obtain the preferred video mode from the system
-	// This will correspond to the settings in the Wii menu
-	rmode = VIDEO_GetPreferredMode(NULL);
-
-	// Allocate memory for the display in the uncached region
-	xfb = MEM_K0_TO_K1(SYS_AllocateFramebuffer(rmode));
-
-	// Initialise the console, required for printf
-	console_init(xfb,20,20,rmode->fbWidth,rmode->xfbHeight,rmode->fbWidth*VI_DISPLAY_PIX_SZ);
-
-	// Set up the video registers with the chosen mode
-	VIDEO_Configure(rmode);
-
-	// Tell the video hardware where our display memory is
-	VIDEO_SetNextFramebuffer(xfb);
-
-	// Make the display visible
-	VIDEO_SetBlack(false);
-
-	// Flush the video register changes to the hardware
-	VIDEO_Flush();
-
-	// Wait for Video setup to complete
-	VIDEO_WaitVSync();
-	if(rmode->viTVMode&VI_NON_INTERLACE) VIDEO_WaitVSync();
-
-
-	// The console understands VT terminal escape codes
-	// This positions the cursor on row 2, column 0
-	// we can use variables for this with format codes too
-	// e.g. printf ("\x1b[%d;%dH", row, column );
-	printf("\x1b[2;0H");
+	char *str = malloc((num_of_buttons * sizeof(char)) + 1);
+	printf("HELLO WORLD");
 
 	while(SYS_MainLoop()) {
 
 		// Call WPAD_ScanPads each loop, this reads the latest controller states
 		WPAD_ScanPads();
+		WPAD_Expansion(curr_wiimote, &expan);
+		WPAD_Accel(curr_wiimote, &accel);
+		WPAD_Orientation(curr_wiimote, &orient);
+		WPAD_IR(curr_wiimote, &ir);
 
-		char *str = malloc((num_of_buttons * sizeof(char)) + 1);
+
 		ButtonCheck(str, curr_wiimote);
+		printf("\x1b[0;0H"); // set cursor to y = 0, x = 0
 
-		printf("%s\n", str);
+
+		// clear the screen before printing, all other code should be before to save time
+		VIDEO_ClearFrameBuffer(rmode, xfb, COLOR_BLACK);
+		printf("%s\n", str); // print buttons
+		printf("expansion: %i\n", expan.type); 
+		printf("roll: %f, yaw: %f, pitch: %f\n", orient.roll, orient.yaw, orient.pitch);
+		printf("pointer x: %f, y: %f\n", ir.x, ir.y);
+		printf("battery level: %d\n", WPAD_BatteryLevel(curr_wiimote));
+		
+		// sleep(1);
+
 
 		// // We return to the launcher application via exit
 		// if ( WPAD_ButtonsHeld(currWiimote) & WPAD_BUTTON_HOME ) exit(0);
@@ -63,5 +40,6 @@ int main(int argc, char **argv) {
 		VIDEO_WaitVSync();
 	}
 
+	free(str);
 	return 0;
 }
